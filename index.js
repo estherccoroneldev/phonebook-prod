@@ -1,24 +1,36 @@
 const express = require("express");
+const morgan = require("morgan");
 const app = express();
-let data = require("./persons-db.json");
+let persons = require("./persons-db.json").persons;
+
+morgan.token("response-custom", function (request, _) {
+  return request.method === "POST" ? JSON.stringify(request.body) : "";
+});
+
+app.use(
+  morgan(
+    ":method :url :status :res[content-length] - :response-time ms :response-custom"
+  )
+);
+app.use(morgan("tiny"));
 
 app.use(express.json());
 
 app.get("/api/persons", (_, response) => {
-  response.json(data.persons);
+  response.json(persons);
 });
 
 app.get("/info", (_, response) => {
   const date = new Date();
   response.send(`
-  <p>Hello there! PhoneBook has info for ${data.persons.length} people</p>
+  <p>Hello there! PhoneBook has info for ${persons.length} people</p>
   <p>${date}</p>
   `);
 });
 
 app.get("/api/persons/:id", (request, response) => {
   const id = Number(request.params.id);
-  const person = data?.persons.find((person) => {
+  const person = persons.find((person) => {
     return person.id === id;
   });
 
@@ -32,14 +44,13 @@ app.get("/api/persons/:id", (request, response) => {
 
 app.delete("/api/persons/:id", (request, response) => {
   const id = Number(request.params.id);
-  data.persons = data.persons.filter((note) => note.id !== id);
+  persons = persons.filter((note) => note.id !== id);
 
   response.status(204).end();
 });
 
 const generateId = () => {
-  const maxId =
-    data.persons.length > 0 ? Math.max(...data.persons.map((n) => n.id)) : 0;
+  const maxId = persons.length > 0 ? Math.max(...persons.map((n) => n.id)) : 0;
   return maxId + 1;
 };
 
@@ -55,7 +66,7 @@ app.post("/api/persons", (request, response) => {
     });
   }
 
-  const isExisting = data.persons.some(isNameEqual(body.name));
+  const isExisting = persons.some(isNameEqual(body.name));
 
   if (isExisting) {
     // 422 Unprocessable Entity
@@ -70,7 +81,7 @@ app.post("/api/persons", (request, response) => {
     id: generateId(),
   };
 
-  data.persons = [...data.persons, person];
+  persons = [...persons, person];
 
   response.json(person);
 });
