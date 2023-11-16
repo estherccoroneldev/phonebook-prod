@@ -1,4 +1,5 @@
 const express = require("express");
+const fs = require("fs/promises");
 const morgan = require("morgan");
 const app = express();
 let persons = require("./persons-db.json").persons;
@@ -82,9 +83,17 @@ app.post("/api/persons", (request, response) => {
   };
 
   persons = [...persons, person];
-
+  setPerson({ persons });
   response.json(person);
 });
+
+async function setPerson(body) {
+  try {
+    await fs.writeFile("./persons-db.json", JSON.stringify(body));
+  } catch (err) {
+    console.log(JSON.stringify(err, null, 2));
+  }
+}
 
 const PORT = 3001;
 
