@@ -1,0 +1,20 @@
+{
+  "name": "phonebook-prod",
+  "version": "1.0.0",
+  "description": "Backend for the phonebook project",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "L Esther C Coronel",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
+
